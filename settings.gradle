@@ -1,0 +1,4 @@
+rootProject.name = 'calender-service'
+
+include 'datamodel'
+include 'common'
