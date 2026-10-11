@@ -37,9 +37,9 @@ public class CalenderController {
         return ResponseEntity.ok(calenderService.getCalender(id));
     }
 
-    @GetMapping("/all/{ownerId}")
-    public ResponseEntity<List<CalenderResponse>> getCalendersByOwnerId(@PathVariable UUID ownerId){
-        return ResponseEntity.ok(calenderService.getCalenderByOwnerId(ownerId));
+    @GetMapping("/all")
+    public ResponseEntity<List<CalenderResponse>> getCalendersByOwnerId(){
+        return ResponseEntity.ok(calenderService.getCalenderByOwnerId());
     }
 
     @PutMapping("/{id}")

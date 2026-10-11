@@ -1,5 +1,6 @@
 package com.project.calenderservice.service.impl;
 
+import com.project.calenderservice.dtos.UserContext;
 import com.project.calenderservice.dtos.request.UserRequest;
 import com.project.calenderservice.dtos.response.UserResponse;
 import com.project.calenderservice.entities.User;
@@ -19,6 +20,7 @@ import java.util.UUID;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final UserContext userContext;
 
 
     @Override
@@ -34,9 +36,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserResponse updateUser(UUID id, UserRequest request) {
-        User user = userRepository.findById(id).orElseThrow(()->
-                new ResourceNotFoundException("User with id "+ id + " not found"));
+    public UserResponse updateUser(UserRequest request) {
+        UUID userId = userContext.getUserId();
+        User user = userRepository.findById(userId).orElseThrow(()->
+                new ResourceNotFoundException("User with id "+ userId + " not found"));
 
         user.setName(request.name());
         user.setEmailId(request.emailId());
@@ -46,9 +49,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public UserResponse getUserById(UUID id) {
-        User user = userRepository.findById(id).orElseThrow(()->
-                new ResourceNotFoundException("User with id "+ id + " not found"));
+    public UserResponse getUserById() {
+        UUID userId = userContext.getUserId();
+        User user = userRepository.findById(userId).orElseThrow(()->
+                new ResourceNotFoundException("User with id "+ userId + " not found"));
         return mapToResponse(user);
     }
 

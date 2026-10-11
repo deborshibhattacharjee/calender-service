@@ -13,7 +13,7 @@ public interface CalenderService {
 
     CalenderResponse getCalender(UUID id);
 
-    List<CalenderResponse> getCalenderByOwnerId(UUID ownerId);
+    List<CalenderResponse> getCalenderByOwnerId();
 
     CalenderResponse updateCalender(UUID id, CalenderUpdaterRequest request);
 

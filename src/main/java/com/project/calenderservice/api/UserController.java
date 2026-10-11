@@ -29,18 +29,17 @@ public class UserController {
         return ResponseEntity.created(location).body(userResponse);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable UUID id, @Valid @RequestBody
-                                                   UserRequest request){
-        return ResponseEntity.ok(userService.updateUser(id, request));
+    @PutMapping
+    public ResponseEntity<UserResponse> updateUser(@Valid @RequestBody UserRequest request){
+        return ResponseEntity.ok(userService.updateUser(request));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable UUID id){
-        return ResponseEntity.ok(userService.getUserById(id));
+    @GetMapping
+    public ResponseEntity<UserResponse> getUserById(){
+        return ResponseEntity.ok(userService.getUserById());
     }
 
-    @GetMapping("/email/{email}")
+    @GetMapping("/{email}")
     public ResponseEntity<UserResponse> getUserByEmail(@PathVariable String email){
         return ResponseEntity.ok(userService.getUserByEmail(email));
     }

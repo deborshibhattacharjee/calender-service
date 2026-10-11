@@ -1,5 +1,6 @@
 package com.project.calenderservice.service.impl;
 
+import com.project.calenderservice.dtos.UserContext;
 import com.project.calenderservice.dtos.request.CalenderRequest;
 import com.project.calenderservice.dtos.request.CalenderUpdaterRequest;
 import com.project.calenderservice.dtos.response.CalenderResponse;
@@ -8,6 +9,7 @@ import com.project.calenderservice.exception.ResourceNotFoundException;
 import com.project.calenderservice.repository.CalenderRepository;
 import com.project.calenderservice.repository.UserRepository;
 import com.project.calenderservice.service.CalenderService;
+import com.project.calenderservice.validator.CalenderValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +24,8 @@ public class CalenderServiceImpl implements CalenderService {
 
     private final CalenderRepository calenderRepository;
     private final UserRepository userRepository;
+    private final CalenderValidator calenderValidator;
+    private final UserContext userContext;
 
 
     @Override
@@ -30,7 +34,7 @@ public class CalenderServiceImpl implements CalenderService {
         if(!userRepository.existsById(request.ownerId())){
             throw new ResourceNotFoundException("User does not exist: " + request.ownerId());
         }
-
+        calenderValidator.validateTimeZone(request.timeZone());
         Calender calender = Calender.builder().ownerId(request.ownerId()).name(request.name())
                 .description(request.description()).timeZone(request.timeZone()).build();
         return mapToResponse(calenderRepository.save(calender));
@@ -39,27 +43,31 @@ public class CalenderServiceImpl implements CalenderService {
     @Override
     @Transactional(readOnly = true)
     public CalenderResponse getCalender(UUID id) {
-        Calender calender = calenderRepository.findById(id)
+        UUID ownerId = userContext.getUserId();
+        Calender calender = calenderRepository.findByIdAndOwnerId(id, ownerId)
                 .orElseThrow(()->new ResourceNotFoundException("Calender not found"));
         return mapToResponse(calender);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<CalenderResponse> getCalenderByOwnerId(UUID ownerId) {
+    public List<CalenderResponse> getCalenderByOwnerId() {
+        UUID ownerId = userContext.getUserId();
         if(!userRepository.existsById(ownerId)){
             throw new ResourceNotFoundException("User does not exist");
         }
-
         List<Calender> calenders = calenderRepository.findByOwnerId(ownerId);
         return calenders.stream().map(this::mapToResponse).collect(Collectors.toList());
     }
 
     @Override
+    @Transactional
     public CalenderResponse updateCalender(UUID id, CalenderUpdaterRequest request) {
-        Calender calender = calenderRepository.findById(id)
-                .orElseThrow(()->new ResourceNotFoundException("Calender does not exist"));
+        UUID ownerId = userContext.getUserId();
+        Calender calender = calenderRepository.findByIdAndOwnerId(id, ownerId)
+                .orElseThrow(()->new ResourceNotFoundException("Calender not found"));
 
+        calenderValidator.validateTimeZone(request.timeZone());
         calender.setName(request.name());
         calender.setDescription(request.description());
         calender.setTimeZone(request.timeZone());
@@ -68,9 +76,11 @@ public class CalenderServiceImpl implements CalenderService {
     }
 
     @Override
+    @Transactional
     public void deleteCalender(UUID id) {
-        Calender calender = calenderRepository.findById(id)
-                .orElseThrow(()->new ResourceNotFoundException("Calender does not exist"));
+        UUID ownerId = userContext.getUserId();
+        Calender calender = calenderRepository.findByIdAndOwnerId(id, ownerId)
+                .orElseThrow(()->new ResourceNotFoundException("Calender not found"));
         calenderRepository.delete(calender);
     }
 

@@ -9,9 +9,9 @@ public interface UserService {
 
     UserResponse createUser(UserRequest request);
 
-    UserResponse updateUser(UUID id, UserRequest request);
+    UserResponse updateUser(UserRequest request);
 
-    UserResponse getUserById(UUID id);
+    UserResponse getUserById();
 
     UserResponse getUserByEmail(String email);
 }
